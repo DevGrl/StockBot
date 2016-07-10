@@ -44,6 +44,8 @@ namespace StockBot
                 // Implement user deletion here
                 // If we handle user deletion, return a real message
             }
+            //else if (message.Type == ActivityTypes.)
+    
             else if (message.Type == ActivityTypes.ConversationUpdate)
             {
                 // Handle conversation state changes, like members being added and removed
@@ -58,9 +60,11 @@ namespace StockBot
             else if (message.Type == ActivityTypes.Typing)
             {
                 // Handle knowing tha the user is typing
+                return message.CreateReply("Typing");
             }
             else if (message.Type == ActivityTypes.Ping)
             {
+                return message.CreateReply("Hello");
             }
 
             return null;
