@@ -78,8 +78,7 @@ namespace StockBot
         private async Task<string> GetStock(string strStock)
         {
             string strReturn = string.Empty;
-            double? dblStock = Yahoo.GetStockPriceAsync(strStock);
-            //double? dblStock = await Yahoo.GetStockPriceAsync(strStock);
+            double? dblStock = await Yahoo.GetStockPriceAsync(strStock);
 
             if (null == dblStock)
             {

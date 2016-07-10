@@ -1,7 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Net;
+using System.Threading.Tasks;
 using System.Web;
 
 namespace StockBot
@@ -9,20 +8,21 @@ namespace StockBot
     public class Yahoo
     {
 
-        public static double GetStockPriceAsync(string symbol)
+        public static async Task<double?> GetStockPriceAsync(string symbol)
         {
             if (string.IsNullOrWhiteSpace(symbol))
             {
-                //      return null;
+                 return null;
             }
-            string url = $"http://finance.yahoo.com/webservice/v1/symbols/COALINDIA.NS/quote?format=json&view=detail";
+            string url = $"http://finance.yahoo.com/d/quotes.csv?s={symbol}&f=sl1";
             string csv;
             using (WebClient client = new WebClient())
             {
-                //csv = await client.DownloadStringTaskAsync(url).ConfigureAwait();
-                csv = client.DownloadString(url);
+                csv = await client.DownloadStringTaskAsync(url).ConfigureAwait(false);
+                //csv = client.DownloadString(url);
             }
-            //string line = csv.Split('/n')[0];
+
+            string line = csv.Split('\n')[0];
             string price = csv.Split(',')[1];
 
             double result;
@@ -31,7 +31,7 @@ namespace StockBot
                 return result;
             }
 
-            return 0;
+            return null;
         }
 
     }
