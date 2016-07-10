@@ -7,6 +7,7 @@ using System.Web.Http;
 using System.Web.Http.Description;
 using Microsoft.Bot.Connector;
 using Newtonsoft.Json;
+//using System.Runtime.CompilerServices;
 
 namespace StockBot
 {
@@ -21,12 +22,16 @@ namespace StockBot
         {
             if (activity.Type == ActivityTypes.Message)
             {
+
+                string strStock = await GetStock(activity.Text);
                 ConnectorClient connector = new ConnectorClient(new Uri(activity.ServiceUrl));
                 // calculate something for us to return
                 int length = (activity.Text ?? string.Empty).Length;
 
                 // return our reply to the user
-                Activity reply = activity.CreateReply($"You sent {activity.Text} which was {length} characters");
+                //Activity reply = activity.CreateReply($"You sent {activity.Text} which was {length} characters");
+                Activity reply = activity.CreateReply(strStock);
+
                 await connector.Conversations.ReplyToActivityAsync(reply);
             }
             else
@@ -64,10 +69,27 @@ namespace StockBot
             }
             else if (message.Type == ActivityTypes.Ping)
             {
-                return message.CreateReply("Hello");
-            }
+                return message.CreateReply("Ping");
+            }      
 
             return null;
+        }
+
+        private async Task<string> GetStock(string strStock)
+        {
+            string strReturn = string.Empty;
+            double? dblStock = Yahoo.GetStockPriceAsync(strStock);
+            //double? dblStock = await Yahoo.GetStockPriceAsync(strStock);
+
+            if (null == dblStock)
+            {
+                strReturn = string.Format("Stock {0} doesn't appear to be valid", strStock);
+            }
+            else
+            {
+                strReturn = string.Format("Stock: {0}, Value: {1}", strStock.ToUpper(), dblStock);
+            }
+            return strReturn;
         }
     }
 }
