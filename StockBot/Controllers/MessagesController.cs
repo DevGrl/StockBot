@@ -22,17 +22,36 @@ namespace StockBot
         {
             if (activity.Type == ActivityTypes.Message)
             {
+                
+                bool bSetStock = false;
+                StockLUIS stLuis = await LUISStockClient.ParseUserInput(activity.Text);
+                string strReturn = string.Empty;
+                string strStock = activity.Text;
 
-                string strStock = await GetStock(activity.Text);
-                ConnectorClient connector = new ConnectorClient(new Uri(activity.ServiceUrl));
-                // calculate something for us to return
-                int length = (activity.Text ?? string.Empty).Length;
+                if (stLuis.intents.Count() > 0)
+                {
+                    switch (stLuis.intents[0].intent)
+                    {
+                        case "StockPrice":
+                            bSetStock = true;
+                            strReturn = await GetStock(stLuis.entities[0].entity);
+                            break;
+                        default:
+                            break;
+                    }
+                }
 
-                // return our reply to the user
-                //Activity reply = activity.CreateReply($"You sent {activity.Text} which was {length} characters");
-                Activity reply = activity.CreateReply(strStock);
 
-                await connector.Conversations.ReplyToActivityAsync(reply);
+                    //string strStock = await GetStock(activity.Text);
+                    ConnectorClient connector = new ConnectorClient(new Uri(activity.ServiceUrl));
+                    //// calculate something for us to return
+                    //int length = (activity.Text ?? string.Empty).Length;
+
+                    //// return our reply to the user
+                    ////Activity reply = activity.CreateReply($"You sent {activity.Text} which was {length} characters");
+                    Activity reply = activity.CreateReply(strReturn);
+
+                    await connector.Conversations.ReplyToActivityAsync(reply);
             }
             else
             {
