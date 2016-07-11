@@ -18,7 +18,7 @@ namespace StockBot
             using (var client = new HttpClient())
             {
                 string uri = "https://api.projectoxford.ai/luis/v1/application?id=b4ef4e7b-ed25-4275-ac06-1c8f99e31961&subscription-key=1965d51585cf40a2a4357bfc19f6ec9d&q=" + strEscaped;
-                
+                              
                 //string uri = "https://api.projectoxford.ai/luis/v1/application?id=b4ef4e7b-ed25-4275-ac06-1c8f99e31961&subscription-key=1965d51585cf40a2a4357bfc19f6ec9d" + strEscaped;
                 HttpResponseMessage msg = await client.GetAsync(uri);
 
