@@ -20,12 +20,14 @@ namespace StockBot
         /// </summary>
         public async Task<HttpResponseMessage> Post([FromBody]Activity activity)
         {
+            ConnectorClient connector = new ConnectorClient(new Uri(activity.ServiceUrl));
+            string strReturn = string.Empty;
+
             if (activity.Type == ActivityTypes.Message)
             {                
                 StockLUIS stLuis = await LUISStockClient.ParseUserInput(activity.Text);
-                string strReturn = string.Empty;
                 string strStock = activity.Text;
-                
+
                 if (stLuis.intents.Count() > 0)
                 {
                     switch (stLuis.intents[0].intent)
@@ -51,16 +53,14 @@ namespace StockBot
                             break;
                     }
                 }
-                
-                ConnectorClient connector = new ConnectorClient(new Uri(activity.ServiceUrl));
-                Activity reply = activity.CreateReply(strReturn);
-                await connector.Conversations.ReplyToActivityAsync(reply);
             }
             else
             {
-                HandleSystemMessage(activity);
+                strReturn = HandleSystemMessage(activity).Text;   
             }//end if (activity.Type == ActivityTypes.Message)
 
+            Activity reply = activity.CreateReply(strReturn);
+            await connector.Conversations.ReplyToActivityAsync(reply);
             var response = Request.CreateResponse(HttpStatusCode.OK);
             return response;
         }
@@ -87,14 +87,13 @@ namespace StockBot
             else if (message.Type == ActivityTypes.Typing)
             {
                 // Handle knowing tha the user is typing
-                return message.CreateReply("Typing");
+                return message.CreateReply("Feel like typing something?");
             }
             else if (message.Type == ActivityTypes.Ping)
             {
-                return message.CreateReply("Ping");
+                return message.CreateReply("I'm here!");
             }   
                
-
             return null;
         }
 
