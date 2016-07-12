@@ -13,7 +13,6 @@ namespace StockBot
     [BotAuthentication]
     public class MessagesController : ApiController
     {
-
         static string lastStock = string.Empty;
         /// <summary>
         /// POST: api/Messages
@@ -47,7 +46,6 @@ namespace StockBot
                             break;
                         case "None":
                             strReturn = await GetStock(stLuis.query);
-                            //Need to fix this part. It doesn't set the lastStock value
                             break;
                         default:
                             break;
@@ -94,7 +92,8 @@ namespace StockBot
             else if (message.Type == ActivityTypes.Ping)
             {
                 return message.CreateReply("Ping");
-            }      
+            }   
+               
 
             return null;
         }
