@@ -12,6 +12,7 @@ namespace StockBot
     {
         public static async Task<StockLUIS> ParseUserInput(string strInput)
         {
+            
             string strRet = string.Empty;
             string strEscaped = Uri.EscapeDataString(strInput);
 
@@ -35,9 +36,10 @@ namespace StockBot
 
     public class StockLUIS
     {
+        public string lastSymbol;
         public string query { get; set; }
         public Intent[] intents { get; set; }
-        public lEntity[] entities { get; set; }
+        public lEntity[] entities { get; set; }        
     }
 
     public class Intent

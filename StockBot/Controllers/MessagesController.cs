@@ -13,6 +13,8 @@ namespace StockBot
     [BotAuthentication]
     public class MessagesController : ApiController
     {
+
+        static string lastStock = string.Empty;
         /// <summary>
         /// POST: api/Messages
         /// Receive a message from a user and reply to it
@@ -21,18 +23,31 @@ namespace StockBot
         {
             if (activity.Type == ActivityTypes.Message)
             {                
-                bool bSetStock = false;
                 StockLUIS stLuis = await LUISStockClient.ParseUserInput(activity.Text);
                 string strReturn = string.Empty;
                 string strStock = activity.Text;
-
+                
                 if (stLuis.intents.Count() > 0)
                 {
                     switch (stLuis.intents[0].intent)
                     {
                         case "StockPrice":
-                            bSetStock = true;
-                            strReturn = await GetStock(stLuis.entities[0].entity);
+                            if (stLuis.entities.Count() > 0)
+                            { 
+                                strReturn = await GetStock(stLuis.entities[0].entity);
+                                lastStock = stLuis.entities[0].entity;
+                            }
+                            else goto case "None";
+                            break;
+                        case "LastStockValue":
+                            if (lastStock.Length > 0)
+                                strReturn = await GetStock(lastStock);
+                            else
+                                strReturn = "There was no previous valid stock";
+                            break;
+                        case "None":
+                            strReturn = await GetStock(stLuis.query);
+                            //Need to fix this part. It doesn't set the lastStock value
                             break;
                         default:
                             break;
@@ -46,7 +61,7 @@ namespace StockBot
             else
             {
                 HandleSystemMessage(activity);
-            }//if (activity.Type == ActivityTypes.Message)
+            }//end if (activity.Type == ActivityTypes.Message)
 
             var response = Request.CreateResponse(HttpStatusCode.OK);
             return response;
@@ -59,7 +74,6 @@ namespace StockBot
                 // Implement user deletion here
                 // If we handle user deletion, return a real message
             }
-            //else if (message.Type == ActivityTypes.)
     
             else if (message.Type == ActivityTypes.ConversationUpdate)
             {
@@ -88,13 +102,13 @@ namespace StockBot
         private async Task<string> GetStock(string strStock)
         {
             string strReturn = string.Empty;
-            double? dblStock = await Yahoo.GetStockPriceAsync(strStock);
+            double? dblStock = await Yahoo.GetStockPriceAsync(strStock);            
 
-            if (null == dblStock)
-                strReturn = string.Format("Stock {0} doesn't appear to be valid", strStock);
+            if (!(dblStock == null))
+               strReturn = string.Format("Stock: {0}, Value: {1}", strStock.ToUpper(), dblStock);
             else
-                strReturn = string.Format("Stock: {0}, Value: {1}", strStock.ToUpper(), dblStock);
-            
+                strReturn = string.Format("Stock {0} doesn't appear to be valid", strStock);
+
             return strReturn;
         }
     }
